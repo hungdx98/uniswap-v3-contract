@@ -1,54 +1,61 @@
-import 'hardhat-typechain'
-import '@nomiclabs/hardhat-ethers'
-import '@nomiclabs/hardhat-waffle'
-import '@nomiclabs/hardhat-etherscan'
+import "@nomicfoundation/hardhat-ignition-ethers";
+import '@nomiclabs/hardhat-ethers';
+import '@nomiclabs/hardhat-waffle';
+import * as dotenv from 'dotenv';
+import 'hardhat-typechain';
+
+dotenv.config();
+
+import { task } from "hardhat/config";
+
+// Custom task to list accounts
+task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
+  const accounts = await hre.ethers.getSigners();
+  for (const account of accounts) {
+    console.log(account.address);
+  }
+
+});
 
 export default {
   networks: {
     hardhat: {
       allowUnlimitedContractSize: false,
-    },
-    mainnet: {
-      url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
-    },
-    ropsten: {
-      url: `https://ropsten.infura.io/v3/${process.env.INFURA_API_KEY}`,
-    },
-    rinkeby: {
-      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
-    },
-    goerli: {
-      url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
-    },
-    kovan: {
-      url: `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`,
-    },
-    arbitrumRinkeby: {
-      url: `https://arbitrum-rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
-    },
-    arbitrum: {
-      url: `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
-    },
-    optimismKovan: {
-      url: `https://optimism-kovan.infura.io/v3/${process.env.INFURA_API_KEY}`,
-    },
-    optimism: {
-      url: `https://optimism-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
-    },
-    mumbai: {
-      url: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_API_KEY}`,
-    },
-    polygon: {
-      url: `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      chainId: 88,
+      initialBaseFeePerGas: 0, // Set to 0 to avoid pending block issues
+      accounts: {
+        mnemonic: process.env.MNEMONIC,
+      },
     },
     bnb: {
-      url: `https://bsc-dataseed.binance.org/`,
+      chainId: 56,
+      url: 'https://bsc.drpc.org',
     },
+    viction: {
+      chainId: 88,
+      url: 'https://rpc.viction.xyz',
+      accounts: { mnemonic: process.env.MNEMONIC },
+    }
   },
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    // apiKey: process.env.ETHERSCAN_API_KEY,
+      apiKey: {
+        goerli: "",
+        viction: "tomoscan2023",
+      },
+      customChains: [
+        {
+          network: "viction",
+          chainId: 88, // for mainnet
+          urls: {
+            apiURL: "https://www.vicscan.xyz/api/contract/hardhat/verify", // for mainnet
+            browserURL: "https://vicscan.xyz", // for mainnet
+  
+          }
+        }
+      ]
   },
   solidity: {
     version: '0.7.6',
@@ -64,5 +71,20 @@ export default {
         bytecodeHash: 'none',
       },
     },
+    customChains: [
+      {
+        network: "goerli",
+        chainId: 5,
+        urls: {
+          apiURL: "https://api-goerli.etherscan.io/api",
+          browserURL: "https://goerli.etherscan.io"
+        }
+      }
+    ]
   },
+  sourcify: {
+    // Disabled by default
+    // Doesn't need an API key
+    enabled: true
+  } 
 }
